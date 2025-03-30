@@ -1,0 +1,1 @@
+//definir um padrão de requisições (https://tanstack.com/query/latest)
