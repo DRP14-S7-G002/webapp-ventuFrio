@@ -1,0 +1,111 @@
+.container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.action_heade{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.input_container {
+  display: flex;
+  align-items: center;
+  background-color: #F0F0F0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0 10px;
+  width: 100%;
+  max-width: 500px;
+  height: 40px;
+}
+
+.input_icon {
+  color: #888;
+  background-color: #F0F0F0;
+  margin-right: 8px;
+}
+
+.input_search_table {
+  border: none;
+  outline: none;
+  background-color: #F0F0F0;
+  width: 100%;
+  font-size: 16px;
+}
+
+.create_resister_table{
+  background-color: #333;
+  color: #ffffff;
+  width: 20vh;  
+  border: 0px;
+  border-radius: 5px;
+}
+
+.heading {
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+  font-weight: bold;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 1vh;
+  text-align: left;
+}
+
+.table td {
+  padding: 1vh;
+}
+
+.headerRow {
+  background-color: #333;
+  color: white;
+}
+
+.rowEven {
+  background-color: #ebe9e9;
+}
+
+.rowOdd {
+  background-color: #fff;
+}
+
+
+.statusAprovado {
+  color: green;
+  font-weight: bold;
+}
+
+.statusPendente {
+  color: goldenrod;
+  font-weight: bold;
+}
+
+.statusRecusado {
+  color: red;
+  font-weight: bold;
+}
+
+.pagination {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+

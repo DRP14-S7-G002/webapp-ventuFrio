@@ -1,0 +1,13 @@
+.main_menu{
+    width: 100%;
+    display: flex ;
+    justify-content: space-around;
+    flex-direction: row;
+    background-color: rgb(230, 230, 230);
+}
+.main_menu a {
+    background-color: rgb(230, 230, 230);
+}
+.main_menu a:hover {
+    color: rgb(97, 97, 97) !important; 
+}

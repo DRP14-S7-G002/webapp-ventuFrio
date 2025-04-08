@@ -1,19 +1,38 @@
-import { createContext, useState } from "react";
+"use client"
 
-// Criando o contexto
-export const ThemeContext = createContext(null);
+import { createContext, useState, ReactNode, useContext } from "react";
 
-// Criando o provedor
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light");
+interface BudgetContextType {
+  budget: string;
+  toggleBudget: () => void;
+}
 
-  function toggleTheme() {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+export const BudgetContext = createContext<BudgetContextType | null>(null);
+interface BudgetProviderProps {
+  children: ReactNode;
+}
+
+function BudgetProvider({ children }: BudgetProviderProps) {
+  const [budget, setBudget] = useState("light");
+
+  function toggleBudget() {
+    setBudget((prev) => (prev === "light" ? "dark" : "light"));
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <BudgetContext.Provider value={{ budget, toggleBudget }}>
       {children}
-    </ThemeContext.Provider>
+    </BudgetContext.Provider>
   );
 }
+
+function useBudgetContext(){
+  const context = useContext(BudgetContext)
+
+  if(context === null){
+      throw new Error ('Não Esta dentro do contexto')
+  }
+  return context
+}
+
+export { BudgetProvider, useBudgetContext };

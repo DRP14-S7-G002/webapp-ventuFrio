@@ -1,8 +1,9 @@
+import stlye from './style.module.css'
 export default function Header() {
 
   return (
-    <div>
-        <img src="" alt="Logo da empresa" />
+    <div className={stlye.main_header}>
+       <span>Logo da empresa</span>
     </div>
   );
 }
