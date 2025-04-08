@@ -1,3 +1,4 @@
+```tsx
 src
  ├── app
  │   ├── NomeDaNovaPagina
@@ -7,5 +8,8 @@ src
  │   │   ├── page.tsx
          ├── style.module.css
 
+```
 
+```tsx
 className={}
+```
