@@ -1,3 +1,4 @@
+```tsx
 src
  ├── app
  ├── components
@@ -7,3 +8,4 @@ src
  │   ├── menu
  │   │   ├── page.tsx
          ├── style.module.css
+```
