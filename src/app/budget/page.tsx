@@ -5,105 +5,145 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/table";
 import ModalForm from "@/components/modalForm/ModalForm";
 import { FormField } from "@/types/FormField";
-import { BsEye } from "react-icons/bs";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
-import style from "./style.module.css"
-interface Agendamento {
+import { useToast } from "@/hooks/Toasts/ToastManager";
+
+interface Orcamento {
   id: number;
-  nome: string;
+  descricaoInicial: string;
+  descricaoItem: string;
   status: string;
-  endereco: string,
-  data: string,
+  prazoEntrega: string;
+  valor: number;
+  cliente: string;
+  agendamento: string;
 }
 
-const columns: ColumnDef<Agendamento>[] = [
-  { accessorKey: "nome", header: "Nome" },
-  { accessorKey: "endereco", header: "Endereço",},
-  { accessorKey: "data", header: "Data",},
-  { accessorKey: "status", header: "Status",},
-  {
-    header: "Ações",
-    meta: { className: style.actionColumn },
-    cell: ({ row }) => (
-      <>
-        <button className={style.button_action}
-          onClick={() => alert(`Editando ${row.original.nome}`)}
-        >
-       <FiEdit size={20} style={{ marginRight: "12px", color: "#dfbd00"}} />
-        </button>
-        <button className={style.button_action}
-          onClick={() => alert(`Deletando ${row.original.nome}`)}
-        >
-          <FiTrash2 size={20} style={{ marginRight: "12px", color: "#bd0000" }}/>
-        </button>
-        <button className={style.button_action}
-          onClick={() => alert(`viws ${row.original.nome}`)}
-        ><BsEye size={20} style={{ marginRight: "12px", color: "#0096c4" }} />
-        </button>
-      </>
-    ),
-  },
-];
-
 export default function Budget() {
-  const [data, setData] = useState<Agendamento[]>([
-    { id: 1, nome: "João Silva", endereco: "Rua A", data: "12/03/2025", status: "aprovado" },
-    { id: 2, nome: "Maria Souza", endereco: "Rua B", data: "25/03/2025", status: "pendente" },
-    { id: 3, nome: "Carlos Lima", endereco: "Rua c", data: "07/03/2025", status: "recusado" },
-    { id: 4, nome: "A", endereco: "Rua A", data: "12/03/2025", status: "aprovado" },
-    { id: 5, nome: "B", endereco: "Rua B", data: "25/03/2025", status: "pendente" },
-    { id: 6, nome: "c", endereco: "Rua c", data: "07/03/2025", status: "recusado" },
-    { id: 7, nome: "D", endereco: "Rua A", data: "12/03/2025", status: "aprovado" },
-    { id: 8, nome: "B", endereco: "Rua B", data: "25/03/2025", status: "pendente" },
-    { id: 9, nome: "c", endereco: "Rua c", data: "07/03/2025", status: "recusado" },
-    { id: 10, nome: "r", endereco: "Rua A", data: "12/03/2025", status: "aprovado" },
-    { id: 11, nome: "B", endereco: "Rua B", data: "25/03/2025", status: "pendente" },
-    { id: 12, nome: "c", endereco: "Rua c", data: "07/03/2025", status: "recusado" },
-  ]);
-  
+  // Contexts
+  const { showToast } = useToast();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [formFields, setFormFields] = useState<FormField[]>([
-    { label: "Nome", name: "nome", type: "text", value: "" },
-    { label: "Endereço", name: "endereco", type: "text", value: "" },
-    { label: "Data", name: "data", type: "text", value: "" },
+  const [data, setData] = useState<Orcamento[]>([
     {
-      label: "Status", name: "status", type: "select",
-      options: ["Confirmado", "Pendente"],
-      value: "Pendente",
+      id: 1,
+      descricaoInicial: "Descrição inicial 1",
+      descricaoItem: "Item 1",
+      status: "Pendente",
+      prazoEntrega: "2025-05-01",
+      valor: 1500.0,
+      cliente: "João Silva",
+      agendamento: "Agendamento 1",
+    },
+    {
+      id: 2,
+      descricaoInicial: "Descrição inicial 2",
+      descricaoItem: "Item 2",
+      status: "Aprovado",
+      prazoEntrega: "2025-05-10",
+      valor: 2500.0,
+      cliente: "Maria Souza",
+      agendamento: "Agendamento 2",
     },
   ]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [formFields, setFormFields] = useState<FormField[]>([
+    { label: "Descrição Inicial", name: "descricaoInicial", type: "text", value: "" },
+    { label: "Descrição Item", name: "descricaoItem", type: "text", value: "" },
+    { label: "Status", name: "status", type: "select", options: ["Pendente", "Aprovado", "Recusado"], value: "Pendente",  },
+    { label: "Prazo de Entrega", name: "prazoEntrega", type: "text", value: "" },
+    { label: "Valor", name: "valor", type: "text", value: "" },
+    { label: "Cliente", name: "cliente", type: "select", options: ["João", "Fernanda", "Leticia"], value: "" },
+    { label: "Agendamento", name: "agendamento", type: "select", options: ["1", "2", "3"], value: "" },
+  ]);
+
+  const columns: ColumnDef<Orcamento>[] = [
+    { accessorKey: "descricaoInicial", header: "Descrição Inicial" },
+    { accessorKey: "descricaoItem", header: "Descrição Item" },
+    { accessorKey: "status", header: "Status" },
+    { accessorKey: "prazoEntrega", header: "Prazo de Entrega" },
+    { accessorKey: "valor", header: "Valor" },
+    { accessorKey: "cliente", header: "Cliente" },
+    { accessorKey: "agendamento", header: "Agendamento" },
+  ];
+
   const handleChange = (name: string, value: string) => {
-    setFormFields((prev) =>
-      prev.map((field) =>
+    setFormFields((prevFields) =>
+      prevFields.map((field) =>
         field.name === name ? { ...field, value } : field
       )
     );
   };
 
   const handleCreate = () => {
-    const values = Object.fromEntries(
-      formFields.map((f) => [f.name, f.value])
+    const newOrcamento = formFields.reduce(
+      (acc, field) => ({ ...acc, [field.name]: field.value }),
+      { id: data.length + 1 } as Orcamento
     );
-    const newId = data.length + 1;
-    const newItem: Agendamento = {
-      id: newId,
-      nome: values.nome,
-      status: values.status,
-      endereco: values.enderecom,
-      data: values.data
-    };
-    setData((prev) => [...prev, newItem]);
-    setFormFields((prev) =>
-      prev.map((field) =>
-        field.name === "status"
-          ? { ...field, value: "Pendente" }
-          : { ...field, value: "" }
+    setData((prevData) => [...prevData, newOrcamento]);
+    setIsModalOpen(false);
+    showToast("success", "Orçamento cadastrado com sucesso!");
+  };
+
+  const handleEdit = (id: number) => {
+    const orcamento = data.find((o) => o.id === id);
+    if (orcamento) {
+      setFormFields(
+        Object.keys(orcamento).map((key) => ({
+          label: key.charAt(0).toUpperCase() + key.slice(1),
+          name: key,
+          type: key === "status" ? "select" : "text",
+          value: orcamento[key as keyof Orcamento]?.toString() || "",
+          options: key === "status" ? ["Pendente", "Aprovado", "Recusado"] : undefined,
+        }))
+      );
+      setModalMode("edit");
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSaveEdit = () => {
+    const updatedOrcamento = formFields.reduce(
+      (acc, field) => ({ ...acc, [field.name]: field.value }),
+      {} as Orcamento
+    );
+    setData((prevData) =>
+      prevData.map((orcamento) =>
+        orcamento.id === updatedOrcamento.id ? updatedOrcamento : orcamento
       )
     );
     setIsModalOpen(false);
+    showToast("success", "Orçamento editado com sucesso!");
+  };
+
+  const handleDelete = (id: number) => {
+    setData((prevData) => prevData.filter((orcamento) => orcamento.id !== id));
+    showToast("success", "Orçamento deletado com sucesso!");
+  };
+
+  const handleAction = (action: "create" | "edit" | "delete" | "view", orcamento?: Orcamento) => {
+    switch (action) {
+      case "create":
+        setFormFields(
+          formFields.map((field) => ({
+            ...field,
+            value: field.name === "status" ? "Pendente" : "",
+          }))
+        );
+        setModalMode("create");
+        setIsModalOpen(true);
+        break;
+      case "edit":
+        if (orcamento) handleEdit(orcamento.id);
+        break;
+      case "delete":
+        if (orcamento) handleDelete(orcamento.id);
+        break;
+      case "view":
+        // Placeholder for "view" action
+        console.log("View action triggered for:", orcamento);
+        break;
+    }
   };
 
   return (
@@ -111,16 +151,17 @@ export default function Budget() {
       <DataTable
         columns={columns}
         data={data}
-        title="Orçamento"
-        createRegister={() => setIsModalOpen(true)}
+        title="Orçamentos"
+        onAction={handleAction}
       />
 
       <ModalForm
         isOpen={isModalOpen}
-        title="Novo Orçamento"
+        mode={modalMode}
+        title="Orçamento"
         fields={formFields}
         onChange={handleChange}
-        onSubmit={handleCreate}
+        onSubmit={modalMode === "edit" ? handleSaveEdit : handleCreate}
         onClose={() => setIsModalOpen(false)}
       />
     </>

@@ -3,6 +3,7 @@ import "./globals.css";
 
 import Menu from "@/components/menu";
 import { BudgetProvider } from "@/hooks/budget";
+import { ToastProvider } from "@/hooks/Toasts/ToastManager";
 
 export default function RootLayout({
   children,
@@ -12,12 +13,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body >
+      <ToastProvider>
         <Header/>
-        <Menu/>
+        <Menu/> 
+
         <BudgetProvider>
          
             {children}
         </BudgetProvider>
+        </ToastProvider>
       </body>
     </html>
   );

@@ -1,0 +1,8 @@
+.button_action{
+  border: 0vh solid;
+  background-color: #ffffff00;
+}
+.actionColumn {
+  width: 120px; /* ou ajuste como preferir */
+  text-align: center;
+}

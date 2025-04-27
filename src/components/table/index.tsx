@@ -7,42 +7,95 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { BsEye } from "react-icons/bs";
 import style from "./style.module.css";
-import { FiFilter } from "react-icons/fi";
+import { useEffect, useState } from "react";
 
-interface DataTableProps<TData> {
+interface DataTableProps<TData extends { id: number; nome?: string }> {
   columns: ColumnDef<TData, any>[];
   data: TData[];
   title: string;
-  createRegister: () => void;
+  onAction?: (action: 'create' | 'edit' | 'delete' | 'view', data?: TData) => void;
 }
 
-export function DataTable<TData>({ columns, data, title, createRegister }: DataTableProps<TData>) {
+export function DataTable<TData extends { id: number; nome?: string }>({
+  columns,
+  data,
+  title,
+  onAction,
+}: DataTableProps<TData>) {
+  const [isLoading, setIsLoading] = useState(false);
+  const fixedColumns: ColumnDef<TData, any>[] = [
+    {
+      id: "actions",
+      header: "Ações",
+      cell: ({ row }) => (
+        <div className={style.actionButtons}>
+          <button
+            className={style.button_action}
+            onClick={() => onAction?.('edit', row.original)}
+          >
+            <FiEdit size={20} style={{ color: "#0096c4", marginRight: "8px" }} />
+          </button>
+          <button
+            className={style.button_action}
+            onClick={() => onAction?.('delete', row.original)}
+          >
+            <FiTrash2 size={20} style={{ color: "#bd0000", marginRight: "8px" }} />
+          </button>
+          <button
+            className={style.button_action}
+            onClick={() => onAction?.('view', row.original)}
+          >
+            <BsEye size={20} style={{ color: "#0096c4" }} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   const table = useReactTable({
     data,
-    columns,
+    columns: [...columns, ...fixedColumns],
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  useEffect(() => {
+    setIsLoading(true);
+
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500); 
+
+    return () => clearTimeout(timeout);
+  }, [data]);
+
   return (
-    <article className={style.container}>
-      <div className={style.action_heade}>
-        <div className={style.input_container}>
-          <FiFilter className={style.input_icon} />
-          <input
-            className={style.input_search_table}
-            type="text"
-            placeholder="Buscar"
-          />
+    <>
+      
+        <article className={style.container_main}>
+      <div className={style.container}>
+        <div className={style.action_heade}>
+          <div className={style.input_container}>
+            <input
+              className={style.input_search_table}
+              type="text"
+              placeholder="Buscar"
+            />
+          </div>
+          <button className={style.create_resister_table} onClick={() => onAction?.('create')}>
+            Adicionar novo
+          </button>
         </div>
-        <button className={style.create_resister_table} onClick={createRegister}>
-          Adicionar novo
-        </button>
       </div>
-
-      <h1 className={style.heading}>{title}</h1>
-
+      <h3 className={style.heading}>{title}</h3>
+    {isLoading ? (
+        <div className={style.loading}>
+        <div className={style.spinner}></div>
+        </div>
+      ) : (
       <table className={style.table}>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -58,26 +111,16 @@ export function DataTable<TData>({ columns, data, title, createRegister }: DataT
         <tbody>
           {table.getRowModel().rows.map((row, idx) => (
             <tr key={row.id} className={idx % 2 === 0 ? style.rowEven : style.rowOdd}>
-              {row.getVisibleCells().map((cell) => {
-                const isStatus = cell.column.id === "status";
-                const statusValue = String(cell.getValue()).toLowerCase();
-
-                let statusClass = "";
-                if (statusValue === "aprovado") statusClass = style.statusAprovado;
-                else if (statusValue === "pendente") statusClass = style.statusPendente;
-                else if (statusValue === "recusado") statusClass = style.statusRecusado;
-
-                return (
-                  <td key={cell.id} className={isStatus ? statusClass : ""}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                );
-              })}
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
-
+      )}
       <div className={style.pagination}>
         <button className={style.button} onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
           Anterior
@@ -88,7 +131,10 @@ export function DataTable<TData>({ columns, data, title, createRegister }: DataT
         <button className={style.button} onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           Próxima
         </button>
-      </div>
-    </article>
+        </div>
+        </article>
+      
+    </>
   );
-}
+ }
+
