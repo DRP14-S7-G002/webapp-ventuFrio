@@ -1,5 +1,15 @@
 .main_header{
-    height: 10vh;
     width: 100%;
+    height: 20vh;
     background-color: #A3D6DB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.imagem_header{
+    width: 80%;
+    height: 90%;
+    object-fit: contain;
 }
