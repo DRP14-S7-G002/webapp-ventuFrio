@@ -6,6 +6,7 @@
     right: 1rem;
     min-width: 300px;
     padding-left: 1.5rem;
+    padding-right: 1.5rem;
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
@@ -19,19 +20,23 @@
   }
   
   .success {
-    background-color: #86efac; /* verde pastel */
+    background-color: #d1fae5; /* verde claro - sucesso */
+    color: #065f46;
   }
   
   .error {
-    background-color: #fca5a5; /* vermelho pastel */
+    background-color: #fee2e2; /* vermelho claro - erro */
+    color: #991b1b;
   }
   
   .alert {
-    background-color: #fdba74; /* laranja pastel */
+    background-color: #fef3c7; /* amarelo claro - alerta */
+    color: #92400e;
   }
   
   .processing {
-    background-color: #93c5fd; /* azul pastel */
+    background-color: #dbeafe; /* azul claro - em processamento */
+    color: #1e3a8a;
   }
   
   

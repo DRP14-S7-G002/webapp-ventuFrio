@@ -1,11 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "@/components/table";
-import ModalForm from "@/components/modalForm/ModalForm";
-import { FormField } from "@/types/FormField";
-import { useToast } from "@/hooks/Toasts/ToastManager";
+import { useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@/components/table';
+import ModalForm from '@/components/modalForm/ModalForm';
+import ModalView from '@/components/modalView/ModalView';
+import { FormField } from '@/types/FormField';
+import { useToast } from '@/hooks/Toasts/ToastManager';
+import axios from 'axios';
+import dados from "../../../dados-exemplos.json";
 
 interface Orcamento {
   id: number;
@@ -18,44 +21,24 @@ interface Orcamento {
   agendamento: string;
 }
 
+const defaultFormFields: FormField[] = [
+  { label: "Descrição Inicial", name: "descricaoInicial", type: "text", value: "" },
+  { label: "Descrição Item", name: "descricaoItem", type: "text", value: "" },
+  { label: "Status", name: "status", type: "select", options: ["Pendente", "Aprovado", "Recusado"], value: "Pendente" },
+  { label: "Prazo de Entrega", name: "prazoEntrega", type: "text", value: "" },
+  { label: "Valor", name: "valor", type: "text", value: "" },
+  { label: "Cliente", name: "cliente", type: "select", options: ["João", "Fernanda", "Leticia"], value: "" },
+  { label: "Agendamento", name: "agendamento", type: "select", options: ["1", "2", "3"], value: "" },
+];
+
 export default function Budget() {
-  // Contexts
   const { showToast } = useToast();
-
-  const [data, setData] = useState<Orcamento[]>([
-    {
-      id: 1,
-      descricaoInicial: "Descrição inicial 1",
-      descricaoItem: "Item 1",
-      status: "Pendente",
-      prazoEntrega: "2025-05-01",
-      valor: 1500.0,
-      cliente: "João Silva",
-      agendamento: "Agendamento 1",
-    },
-    {
-      id: 2,
-      descricaoInicial: "Descrição inicial 2",
-      descricaoItem: "Item 2",
-      status: "Aprovado",
-      prazoEntrega: "2025-05-10",
-      valor: 2500.0,
-      cliente: "Maria Souza",
-      agendamento: "Agendamento 2",
-    },
-  ]);
-
+  const [data, setData] = useState<Orcamento[]>(dados.orcamento);
+  const [formFields, setFormFields] = useState<FormField[]>(defaultFormFields);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [formFields, setFormFields] = useState<FormField[]>([
-    { label: "Descrição Inicial", name: "descricaoInicial", type: "text", value: "" },
-    { label: "Descrição Item", name: "descricaoItem", type: "text", value: "" },
-    { label: "Status", name: "status", type: "select", options: ["Pendente", "Aprovado", "Recusado"], value: "Pendente",  },
-    { label: "Prazo de Entrega", name: "prazoEntrega", type: "text", value: "" },
-    { label: "Valor", name: "valor", type: "text", value: "" },
-    { label: "Cliente", name: "cliente", type: "select", options: ["João", "Fernanda", "Leticia"], value: "" },
-    { label: "Agendamento", name: "agendamento", type: "select", options: ["1", "2", "3"], value: "" },
-  ]);
+  const [isModalViewOpen, setIsModalViewOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit" | "delete" | "view">("create");
+  const [selectedOrcamento, setSelectedOrcamento] = useState<Orcamento | null>(null);
 
   const columns: ColumnDef<Orcamento>[] = [
     { accessorKey: "descricaoInicial", header: "Descrição Inicial" },
@@ -68,84 +51,164 @@ export default function Budget() {
   ];
 
   const handleChange = (name: string, value: string) => {
-    setFormFields((prevFields) =>
-      prevFields.map((field) =>
+    setFormFields(prev =>
+      prev.map(field =>
         field.name === name ? { ...field, value } : field
       )
     );
   };
 
-  const handleCreate = () => {
+  const Create = async () => {
     const newOrcamento = formFields.reduce(
       (acc, field) => ({ ...acc, [field.name]: field.value }),
       { id: data.length + 1 } as Orcamento
     );
-    setData((prevData) => [...prevData, newOrcamento]);
-    setIsModalOpen(false);
+    setData(prev => [...prev, newOrcamento]);
     showToast("success", "Orçamento cadastrado com sucesso!");
+/*     try {
+      await axios.post('https://url', newOrcamento); // ajustar URL se necessário
+      showToast("success", "Orçamento cadastrado com sucesso!");
+    } catch (error) {
+      showToast("error", "Erro ao cadastrar orçamento no servidor!");
+    } */
+    setIsModalOpen(false);
   };
 
-  const handleEdit = (id: number) => {
-    const orcamento = data.find((o) => o.id === id);
-    if (orcamento) {
-      setFormFields(
-        Object.keys(orcamento).map((key) => ({
-          label: key.charAt(0).toUpperCase() + key.slice(1),
-          name: key,
-          type: key === "status" ? "select" : "text",
-          value: orcamento[key as keyof Orcamento]?.toString() || "",
-          options: key === "status" ? ["Pendente", "Aprovado", "Recusado"] : undefined,
-        }))
-      );
-      setModalMode("edit");
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleSaveEdit = () => {
+  const SaveEdit = async () => {
     const updatedOrcamento = formFields.reduce(
       (acc, field) => ({ ...acc, [field.name]: field.value }),
       {} as Orcamento
     );
-    setData((prevData) =>
-      prevData.map((orcamento) =>
-        orcamento.id === updatedOrcamento.id ? updatedOrcamento : orcamento
-      )
+    setData(prev =>
+      prev.map(o => o.id === updatedOrcamento.id ? updatedOrcamento : o)
     );
+    showToast("success", "Orçamento atualizado com sucesso!");
+/*     try {
+      await axios.post('https://url', updatedOrcamento);
+      showToast("success", "Orçamento atualizado com sucesso!");
+    } catch (error) {
+      showToast("error", "Erro ao atualizar orçamento no servidor!");
+    } */
     setIsModalOpen(false);
-    showToast("success", "Orçamento editado com sucesso!");
   };
 
-  const handleDelete = (id: number) => {
-    setData((prevData) => prevData.filter((orcamento) => orcamento.id !== id));
-    showToast("success", "Orçamento deletado com sucesso!");
+  const Delete = () => {
+    if (selectedOrcamento) {
+      setData(prev => prev.filter(o => o.id !== selectedOrcamento.id));
+      showToast("success", `Orçamento deletado com sucesso!`);
+      /*     try {
+      await axios.post('https://url', updatedOrcamento);
+      showToast("success", `Orçamento deletado com sucesso!`);
+    } catch (error) {
+      showToast("error", "Erro ao atualizar orçamento no servidor!");
+    } */
+      setIsModalViewOpen(false);
+    }
   };
 
-  const handleAction = (action: "create" | "edit" | "delete" | "view", orcamento?: Orcamento) => {
+  const handleAction = (
+    action: "create" | "edit" | "delete" | "view",
+    orcamento?: Orcamento
+  ) => {
     switch (action) {
       case "create":
-        setFormFields(
-          formFields.map((field) => ({
-            ...field,
-            value: field.name === "status" ? "Pendente" : "",
-          }))
-        );
+        setFormFields(formFields.map(f => ({ ...f, value: f.name === "status" ? "Pendente" : "" })));
         setModalMode("create");
         setIsModalOpen(true);
         break;
       case "edit":
-        if (orcamento) handleEdit(orcamento.id);
+        const updateOrcamento = data.find(o => o.id === orcamento?.id);
+        if (updateOrcamento) {
+          setFormFields(Object.keys(updateOrcamento).map((key) => ({
+            label: key.charAt(0).toUpperCase() + key.slice(1),
+            name: key,
+            type: "text",
+            value: updateOrcamento[key as keyof Orcamento]?.toString() || "",
+          })));
+          setSelectedOrcamento(updateOrcamento);
+          setModalMode("edit");
+          setIsModalOpen(true);
+        }
         break;
       case "delete":
-        if (orcamento) handleDelete(orcamento.id);
+        if (orcamento) {
+          setSelectedOrcamento(orcamento);
+          setModalMode("delete");
+          setIsModalViewOpen(true);
+        }
         break;
       case "view":
-        // Placeholder for "view" action
-        console.log("View action triggered for:", orcamento);
+        if (orcamento) {
+          setSelectedOrcamento(orcamento);
+          setModalMode("view");
+          setIsModalViewOpen(true);
+        }
         break;
     }
   };
-
+  
+  const renderModal = () => {
+    if (modalMode === "create" || modalMode === "edit") {
+      return (
+        <ModalForm
+          isOpen={isModalOpen}
+          mode={modalMode}
+          title="Orçamentos"
+          fields={formFields}
+          onChange={handleChange}
+          onSubmit={modalMode === "edit" ? SaveEdit : Create}
+          onClose={() => setIsModalOpen(false)}
+        />
+      );
+    }
+  
+    if (modalMode === "view" && selectedOrcamento) {
+      return (
+        <ModalView
+          isOpen={isModalViewOpen}
+          title="Orçamentos"
+          contextModal={[
+            {
+              label: "Detalhes do Orçamento",
+              text: `
+                Nome: ${selectedOrcamento.cliente}
+                Descrição: ${selectedOrcamento.descricaoItem}
+                Valor: R$ ${selectedOrcamento.valor}
+                Status: ${selectedOrcamento.status}
+                Prazo de Entrega: ${selectedOrcamento.prazoEntrega}
+                Agendamento: ${selectedOrcamento.agendamento}
+              `,
+            },
+          ]}
+          onClose={() => setIsModalViewOpen(false)}
+        />
+      );
+    }
+  
+    if (modalMode === "delete" && selectedOrcamento) {
+      return (
+        <ModalView
+          isOpen={isModalViewOpen}
+          title="Orçamentos"
+          contextModal={[
+            {
+              text: `Você tem certeza que deseja deletar o orçamento "${selectedOrcamento.descricaoItem}"?`,
+            },
+          ]}
+          buttonExtra={[
+            {
+              label: "Deletar",
+              onClick: Delete,
+            },
+          ]}
+          onClose={() => setIsModalViewOpen(false)}
+        />
+      );
+    }
+  
+    return null;
+  };
+  
   return (
     <>
       <DataTable
@@ -153,17 +216,9 @@ export default function Budget() {
         data={data}
         title="Orçamentos"
         onAction={handleAction}
+        filterField="descricaoItem"
       />
-
-      <ModalForm
-        isOpen={isModalOpen}
-        mode={modalMode}
-        title="Orçamento"
-        fields={formFields}
-        onChange={handleChange}
-        onSubmit={modalMode === "edit" ? handleSaveEdit : handleCreate}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {renderModal()}
     </>
-  );
+  );  
 }
