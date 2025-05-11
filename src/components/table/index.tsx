@@ -7,7 +7,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiSearch } from "react-icons/fi";
 import { BsEye } from "react-icons/bs";
 import style from "./style.module.css";
 import { useEffect, useMemo, useState } from "react";
@@ -92,7 +92,9 @@ export function DataTable<TData extends { id: number; nome?: string }>({
         <div className={style.container}>
           <div className={style.action_heade}>
             <div className={style.input_container}>
+            <FiSearch size={20} style={{ color: "#1E1E1E", marginRight: "8px" }} />
             <input
+            
               className={style.input_search_table}
               type="text"
               placeholder="Buscar"

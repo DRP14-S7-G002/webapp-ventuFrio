@@ -1,0 +1,8 @@
+.tableTitle {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1e40af; /* azul escuro */
+    margin-bottom: 16px;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 8px;
+  }

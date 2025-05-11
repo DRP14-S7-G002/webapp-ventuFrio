@@ -1,12 +1,27 @@
-version: "3.8"
-
+version: '3.8'
 services:
-  app:
-    build: .
+  backend:
+    build: ./api-ventuFrio
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+    depends_on:
+      - db
+
+  frontend:
+    build: ./webapp-ventuFrio
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
-      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+    depends_on:
+      - backend
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: apiVentuFrio
+    ports:
+      - "3306:3306"

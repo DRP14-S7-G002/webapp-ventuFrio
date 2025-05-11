@@ -2,62 +2,116 @@
 /* components/ModalForm.module.css */
 
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
   
-  .modal {
-    background-color: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    min-width: 300px;
-    max-width: 90%;
-  }
+.modal {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
   
-  .field {
-    margin-bottom: 1rem;
-  }
+.field {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
   
-  .label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-weight: 500;
-  }
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 0.6rem;
+  background-color: #f9f9f9;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.inputReadOnly {
+  width: 100%;
+  padding: 0.6rem;
+  background-color: #eeeeee;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
   
-  .input,
-  .select {
-    width: 90%;
-    padding: 0.5rem;
-  }
-  
-  .buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
+.checkbox {
+  margin-right: 0.5rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.row .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
   
 .button_salve {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    background-color: #333;
-    border: 0px;
-    color: #fff;
-    border-radius: 5px;
-  }
+  flex: 1;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  background-color: #a3d6db;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+}
 
-  .button_cancel {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    background-color: #fff;
-    border: 1px solid #333;
-    border-radius: 5px;
-  }
+.button_cancel {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  background-color: #ccc;
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+}
   

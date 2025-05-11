@@ -33,7 +33,10 @@ export default function Scheduling() {
   const [formFields, setFormFields] = useState<FormField[]>(defaultFormFields);
 
   const columns: ColumnDef<Agendamento>[] = [
+    { accessorKey: "idcliente", header: "ID" },
     { accessorKey: "cliente", header: "Cliente" },
+    { accessorKey: "telefone", header: "Telefone" },
+    { accessorKey: "cep", header: "Cep" },
     { accessorKey: "data", header: "Data" },
     { accessorKey: "hora", header: "Hora" },
   ];

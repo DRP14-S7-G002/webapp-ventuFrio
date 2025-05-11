@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import api from '@/service/api';
+
 import { useBudgetContext } from '@/hooks/budget';
 import {
   BarChart,
@@ -18,6 +21,21 @@ import style from './style.module.css';
 
 export default function Home() {
   const { toggleBudget, budget } = useBudgetContext();
+
+  const [clientes, setClientes] = useState([]);
+
+  useEffect(() => {
+    async function fetchClientes() {
+      try {
+        const response = await api.get('/clientes');
+        setClientes(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar clientes:', error);
+      }
+    }
+
+    fetchClientes();
+  }, []);
 
   // Dados para gráfico de colunas
   const barData = [
