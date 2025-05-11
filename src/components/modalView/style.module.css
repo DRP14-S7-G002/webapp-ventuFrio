@@ -11,13 +11,11 @@
   z-index: 1000;
 }
 
-.modal {  
-  background-color:  #ffffff;
+.modal {
+  background-color: #ffffff;
   color: #333;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 1rem;
-  border-radius: 9px;
+  padding: 2rem;
+  border-radius: 12px;
   min-width: 360px;
   max-width: 600px;
   width: 90%;
@@ -34,44 +32,60 @@
 .title {
   font-size: 1.5rem;
   font-weight: bold;
-}
-
-.closeButton {
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 1.5rem;
-  cursor: pointer;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .body {
   margin-bottom: 1.5rem;
 }
 
-.text {
-  margin-bottom: 0.75rem;
+.viewText {
+  margin-bottom: 1rem;
 }
 
-.label {
+.viewLabel {
   font-weight: 600;
+  font-size: 0.9rem;
+  color: #111;
+  margin-bottom: 0.3rem;
   display: block;
-  margin-bottom: 0.25rem;
-  color: #bbb;
+}
+
+.viewBox {
+  background-color: #f1f1f1;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  color: #333;
+  white-space: pre-line;
+  border: none;
+}
+
+.viewRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.viewRow > div {
+  flex: 1;
 }
 
 .footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .confirmButton {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 2rem;
   background-color: #1e1e1e;
   border: none;
   color: #ffffff;
-  border-radius: 3px;
+  border-radius: 24px;
   cursor: pointer;
+  font-weight: bold;
   transition: background-color 0.2s;
 }
 
@@ -81,16 +95,16 @@
 }
 
 .cancelButton {
-  padding: 0.5rem 1rem;
-  background-color: transparent;
-  border: 1px solid #888;
+  padding: 0.6rem 2rem;
+  background-color: #a3d6db;
   color: #000000;
-  border-radius: 3px;
+  border: none;
+  border-radius: 24px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: background-color 0.2s;
 }
 
 .cancelButton:hover {
-  background-color: #d8d8d8;
-  color: #333;
+  background-color: #89c9ce;
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import Menu from "@/components/menu";
 import { BudgetProvider } from "@/hooks/budget";
 import { ToastProvider } from "@/hooks/Toasts/ToastManager";
+import Footer from "@/components/footer";
 
 export default function RootLayout({
   children,
@@ -18,10 +19,12 @@ export default function RootLayout({
         <Menu/> 
 
         <BudgetProvider>
-         
+          <main>
             {children}
+          </main>
         </BudgetProvider>
         </ToastProvider>
+        <Footer/>
       </body>
     </html>
   );

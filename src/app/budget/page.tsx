@@ -22,8 +22,8 @@ interface Orcamento {
 }
 
 const defaultFormFields: FormField[] = [
-  { label: "Descrição Inicial", name: "descricaoInicial", type: "text", value: "" },
-  { label: "Descrição Item", name: "descricaoItem", type: "text", value: "" },
+  { label: "Descricao Inicial", name: "descricao_nicial", type: "text", value: "" },
+  { label: "Descrição Item", name: "descricao_item", type: "text", value: "" },
   { label: "Status", name: "status", type: "select", options: ["Pendente", "Aprovado", "Recusado"], value: "Pendente" },
   { label: "Prazo de Entrega", name: "prazoEntrega", type: "text", value: "" },
   { label: "Valor", name: "valor", type: "text", value: "" },
@@ -153,7 +153,7 @@ export default function Budget() {
         <ModalForm
           isOpen={isModalOpen}
           mode={modalMode}
-          title="Orçamentos"
+          title="Orçamento"
           fields={formFields}
           onChange={handleChange}
           onSubmit={modalMode === "edit" ? SaveEdit : Create}

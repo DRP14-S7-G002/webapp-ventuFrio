@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { FormField } from '@/types/FormField';
 import { useState } from "react";
 import { useToast } from '@/hooks/Toasts/ToastManager';
-import axios from 'axios';
+import api from '@/service/api';
 import dados from "../../../dados-exemplos.json"; 
 
 interface Cliente {
@@ -157,7 +157,7 @@ export default function Client() {
         <ModalForm
           isOpen={isModalOpen}
           mode={modalMode}
-          title="Clientes"
+          title="Cliente"
           fields={formFields}
           onChange={handleChange}
           onSubmit={modalMode === "edit" ? SaveEdit : Create}
@@ -169,24 +169,19 @@ export default function Client() {
     if (modalMode === "view" && selectedCliente) {
       return (
         <ModalView
-          isOpen={isModalViewOpen}
-          title="Clientes"
-          contextModal={[
-            {
-              label: "Detalhes do Cliente",
-              text: `
-                Nome: ${selectedCliente.nome}
-                Telefone: ${selectedCliente.telefone}
-                CPF: ${selectedCliente.cpf}
-                Rua: ${selectedCliente.rua}
-                Número: ${selectedCliente.numero}
-                Bairro: ${selectedCliente.bairro}
-                CEP: ${selectedCliente.cep}
-              `,
-            },
-          ]}
-          onClose={() => setIsModalViewOpen(false)}
-        />
+  isOpen={isModalViewOpen}
+  title="Cliente"
+  contextModal={[
+    { label: "Nome", text: selectedCliente.nome },
+    { label: "Rua", text: selectedCliente.rua, grouped: true },
+    { label: "Número", text: selectedCliente.numero, grouped: true },
+    { label: "Bairro", text: selectedCliente.bairro, grouped: true },
+    { label: "CEP", text: selectedCliente.cep, grouped: true },
+    { label: "Telefone", text: selectedCliente.telefone },
+    { label: "CPF", text: selectedCliente.cpf },
+  ]}
+  onClose={() => setIsModalViewOpen(false)}
+/>
       );
     }
 
