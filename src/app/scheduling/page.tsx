@@ -1,45 +1,79 @@
-'use client';
+"use client";
 
-import { DataTable } from '@/components/table';
-import ModalForm from '@/components/modalForm/ModalForm';
-import ModalView from '@/components/modalView/ModalView';
-import { ColumnDef } from '@tanstack/react-table';
-import { FormField } from '@/types/FormField';
-import { useState } from "react";
-import { useToast } from '@/hooks/Toasts/ToastManager';
-// import axios from 'axios'; // Para requisições futuras
-import dados from "../../../dados-exemplos.json";
+import { useEffect, useState } from "react";
+import { DataTable } from "@/components/table";
+import ModalForm from "@/components/modalForm/ModalForm";
+import ModalView from "@/components/modalView/ModalView";
+import { ColumnDef } from "@tanstack/react-table";
+import { FormField } from "@/types/FormField";
+import { useToast } from "@/hooks/Toasts/ToastManager";
+import api from "@/service/api";
 
 interface Agendamento {
   id: number;
-  cliente: string;
-  data: string; // YYYY-MM-DD
-  hora: string; // HH:mm:ss
+  cliente_id: number;
+  data_visita: string;
+  cliente_nome?: string;
 }
 
-const defaultFormFields: FormField[] = [
-  { label: "Cliente", name: "cliente", type: "select", options: ["João", "Fernanda", "Leticia"], value: "" },
-  { label: "Data da Visita", name: "data", type: "date", value: "" },
-  { label: "Hora da Visita", name: "hora", type: "time", value: "" },
-];
+interface Cliente {
+  id: number;
+  nome: string;
+}
 
 export default function Scheduling() {
   const { showToast } = useToast();
-  const [isModalViewOpen, setIsModalViewOpen] = useState(false);
-  const [selectedAgendamento, setSelectedAgendamento] = useState<Agendamento | null>(null);
-  const [modalMode, setModalMode] = useState<"create" | "edit" | "delete" | "view">("create");
+  const [data, setData] = useState<Agendamento[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [formFields, setFormFields] = useState<FormField[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState<Agendamento[]>(dados.agendamento);
-  const [formFields, setFormFields] = useState<FormField[]>(defaultFormFields);
+  const [isModalViewOpen, setIsModalViewOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit" | "delete" | "view">("create");
+  const [selectedAgendamento, setSelectedAgendamento] = useState<Agendamento | null>(null);
 
   const columns: ColumnDef<Agendamento>[] = [
-    { accessorKey: "idcliente", header: "ID" },
-    { accessorKey: "cliente", header: "Cliente" },
-    { accessorKey: "telefone", header: "Telefone" },
-    { accessorKey: "cep", header: "Cep" },
-    { accessorKey: "data", header: "Data" },
-    { accessorKey: "hora", header: "Hora" },
+    { accessorKey: "id", header: "ID" },
+    { accessorKey: "cliente_nome", header: "Cliente" },
+    { accessorKey: "data_visita", header: "Data" }
   ];
+
+  const getFormFields = (): FormField[] => [
+    {
+      label: "Cliente",
+      name: "cliente_id",
+      type: "select",
+      options: clientes.map(c => `${c.id}`),
+      value: ""
+    },
+    {
+      label: "Data da Visita",
+      name: "data_visita",
+      type: "date",
+      value: ""
+    }
+  ];
+
+  const carregarAgendamentos = async () => {
+    const [agRes, cliRes] = await Promise.all([
+      api.get("/api/v1/agendamentos"),
+      api.get("/api/v1/clientes")
+    ]);
+
+    const agendamentos = agRes.data.map((ag: Agendamento) => {
+      const nome = cliRes.data.find((c: Cliente) => c.id === ag.cliente_id)?.nome || "Desconhecido";
+      return { ...ag, cliente_nome: nome };
+    });
+
+    setClientes(cliRes.data);
+    setData(agendamentos);
+  };
+
+  useEffect(() => {
+    carregarAgendamentos().catch(err => {
+      console.error("Erro ao carregar dados:", err);
+      showToast("error", "Erro ao carregar agendamentos ou clientes.");
+    });
+  }, []);
 
   const handleChange = (name: string, value: string) => {
     setFormFields(prev =>
@@ -50,53 +84,60 @@ export default function Scheduling() {
   };
 
   const Create = async () => {
-    const newAgendamento = formFields.reduce(
+    const payload = formFields.reduce(
       (acc, field) => ({ ...acc, [field.name]: field.value }),
-      { id: data.length + 1 } as Agendamento
+      {} as { cliente_id: string; data_visita: string }
     );
-    setData(prev => [...prev, newAgendamento]);
-    showToast("success", "Agendamento cadastrado com sucesso!");
-    /*     try {
-      const response = await axios.post<Cliente>('https://apiservicetask.onrender.com/createTask', newCliente);
-      setData(prev => [...prev, response.data]);
-      showToast("success", "Cliente cadastrado com sucesso!");
+
+    try {
+      await api.post("/api/v1/agendamentos", {
+        cliente_id: Number(payload.cliente_id),
+        data_visita: payload.data_visita
+      });
+
+      showToast("success", "Agendamento criado com sucesso!");
+      setIsModalOpen(false);
+      await carregarAgendamentos();
     } catch (error) {
-      showToast("error", "Erro ao persistir dados do cliente no servidor!");
-    } */
-    setIsModalOpen(false);
+      console.error("Erro ao criar agendamento:", error);
+      showToast("error", "Erro ao cadastrar agendamento.");
+    }
   };
 
   const SaveEdit = async () => {
-    const updatedAgendamento = formFields.reduce(
+    if (!selectedAgendamento) return;
+
+    const payload = formFields.reduce(
       (acc, field) => ({ ...acc, [field.name]: field.value }),
-      {} as Agendamento
+      {} as { cliente_id: string; data_visita: string }
     );
-    setData(prev =>
-      prev.map(a => a.id === updatedAgendamento.id ? updatedAgendamento : a)
-    );
-    showToast("success", "Agendamento editado com sucesso!");
-    /*     try {
-      const response = await axios.post<Cliente>('https://apiservicetask.onrender.com/createTask', newCliente);
-      setData(prev => [...prev, response.data]);
-      showToast("success", "Cliente cadastrado com sucesso!");
+
+    try {
+      await api.put(`/api/v1/agendamentos/${selectedAgendamento.id}`, {
+        cliente_id: Number(payload.cliente_id),
+        data_visita: payload.data_visita
+      });
+
+      showToast("success", "Agendamento atualizado com sucesso!");
+      setIsModalOpen(false);
+      await carregarAgendamentos();
     } catch (error) {
-      showToast("error", "Erro ao persistir dados do cliente no servidor!");
-    } */
-    setIsModalOpen(false);
+      console.error("Erro ao editar agendamento:", error);
+      showToast("error", "Erro ao editar agendamento.");
+    }
   };
 
-  const Delete = () => {
-    if (selectedAgendamento) {
-      setData(prev => prev.filter(a => a.id !== selectedAgendamento.id));
-      showToast("success", `Agendamento deletado com sucesso!`);
-      /*     try {
-      const response = await axios.post<Cliente>('https://apiservicetask.onrender.com/createTask', newCliente);
-      setData(prev => [...prev, response.data]);
-      showToast("success", "Cliente cadastrado com sucesso!");
-    } catch (error) {
-      showToast("error", "Erro ao persistir dados do cliente no servidor!");
-    } */
+  const Delete = async () => {
+    if (!selectedAgendamento) return;
+
+    try {
+      await api.delete(`/api/v1/agendamentos/${selectedAgendamento.id}`);
+      showToast("success", "Agendamento deletado com sucesso!");
       setIsModalViewOpen(false);
+      await carregarAgendamentos();
+    } catch (error) {
+      console.error("Erro ao deletar agendamento:", error);
+      showToast("error", "Erro ao deletar agendamento.");
     }
   };
 
@@ -106,26 +147,21 @@ export default function Scheduling() {
   ) => {
     switch (action) {
       case "create":
-        setFormFields(formFields.map(f => ({ ...f, value: "" })));
+        setFormFields(getFormFields());
         setModalMode("create");
         setIsModalOpen(true);
         break;
       case "edit":
-        const updateAgendamento = data.find(a => a.id === agendamento?.id);
-        if (updateAgendamento) {
-          setFormFields(Object.keys(updateAgendamento).map((key) => ({
-            label:
-              key === "data"
-                ? "Data da Visita"
-                : key === "hora"
-                ? "Hora da Visita"
-                : key.charAt(0).toUpperCase() + key.slice(1),
-            name: key,
-            type: key === "data" ? "date" : key === "hora" ? "time" : key === "cliente" ? "select" : "text",
-            value: updateAgendamento[key as keyof Agendamento]?.toString() || "",
-            options: key === "cliente" ? ["João", "Fernanda", "Leticia"] : undefined,
-          })));
-          setSelectedAgendamento(updateAgendamento);
+        if (agendamento) {
+          setSelectedAgendamento(agendamento);
+          const fields = getFormFields().map(f => ({
+            ...f,
+            value:
+              f.name === "cliente_id"
+                ? agendamento.cliente_id.toString()
+                : agendamento.data_visita
+          }));
+          setFormFields(fields);
           setModalMode("edit");
           setIsModalOpen(true);
         }
@@ -147,7 +183,6 @@ export default function Scheduling() {
     }
   };
 
-  // === Função para renderizar os modais ===
   const renderModal = () => {
     if (modalMode === "create" || modalMode === "edit") {
       return (
@@ -169,14 +204,8 @@ export default function Scheduling() {
           isOpen={isModalViewOpen}
           title="Agendamento"
           contextModal={[
-            {
-              label: "Detalhes do Agendamento",
-              text: `
-                Cliente: ${selectedAgendamento.cliente}
-                Data: ${selectedAgendamento.data}
-                Hora: ${selectedAgendamento.hora}
-              `,
-            },
+            { label: "Cliente", text: selectedAgendamento.cliente_nome ?? "Desconhecido" },
+            { label: "Data", text: selectedAgendamento.data_visita }
           ]}
           onClose={() => setIsModalViewOpen(false)}
         />
@@ -190,14 +219,14 @@ export default function Scheduling() {
           title="Agendamento"
           contextModal={[
             {
-              text: `Você tem certeza que deseja deletar o agendamento de ${selectedAgendamento.cliente}?`,
-            },
+              text: `Tem certeza que deseja deletar o agendamento de ${selectedAgendamento.cliente_nome}?`
+            }
           ]}
           buttonExtra={[
             {
               label: "Deletar",
-              onClick: Delete,
-            },
+              onClick: Delete
+            }
           ]}
           onClose={() => setIsModalViewOpen(false)}
         />
@@ -214,9 +243,8 @@ export default function Scheduling() {
         data={data}
         title="Agendamentos"
         onAction={handleAction}
-        filterField="cliente"
+        filterField="cliente_nome"
       />
-
       {renderModal()}
     </>
   );

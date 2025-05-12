@@ -1,14 +1,17 @@
 import Image from 'next/image';
 import style from './style.module.css';
-import imgCenter from '../../assets/img-center.png';
-export default function Header() {
 
+export default function Header() {
   return (
-    <>
     <div className={style.main_header}>
-       <Image src={imgCenter} alt="imagem centro" className={style.imagem_header} priority />
+      <Image
+        src="/img-center.png"
+        alt="Banner VentuFrio"
+        className={style.imagem_header}
+        width={1000}
+        height={200}
+        priority
+      />
     </div>
-    </>
   );
 }
-
