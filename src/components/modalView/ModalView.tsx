@@ -63,7 +63,7 @@ export default function ModalView({
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2 className={styles.title}>{title}</h2>
+          <h2 className={styles.title}> Detalhes</h2>
         </div>
 
         <div className={styles.body}>{renderContext()}</div>
