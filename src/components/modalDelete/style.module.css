@@ -1,0 +1,120 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #ffffff;
+  color: #333;
+  padding: 2rem;
+  border-radius: 12px;
+  min-width: 360px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.fiAlertTriangle {
+  font-size: 3rem;
+  color: #f03131;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-bottom: 5px;
+
+}
+
+.body {
+  margin-bottom: 1.5rem;
+}
+
+.viewText {
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.viewLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #111;
+  margin-bottom: 0.3rem;
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.viewBox {
+  font-family: Arial, Helvetica, sans-serif;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  white-space: pre-line;
+  border: none;
+}
+
+.viewRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.viewRow > div {
+  flex: 1;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.confirmButton {
+  padding: 0.6rem 2rem;
+  background-color: #f54848;
+  border: none;
+  color: #ffffff;
+  border-radius: 24px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.confirmButton:hover {
+  background-color: #ff0404;
+}
+
+.cancelButton {
+  padding: 0.6rem 2rem;
+  background-color: #b7c5c5;
+  color: #000000;
+  border: none;
+  border-radius: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: #5b5d5e;
+}

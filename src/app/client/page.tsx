@@ -8,6 +8,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { FormField } from "@/types/FormField";
 import { useToast } from "@/hooks/Toasts/ToastManager";
 import api from "@/service/api";
+import ModalDelete from "@/components/modalDelete/ModalDelete";
 
 interface Cliente {
   id: number;
@@ -39,57 +40,65 @@ export default function ClientPage() {
   const [data, setData] = useState<Cliente[]>([]);
   const [formFields, setFormFields] = useState<FormField[]>(defaultFormFields);
 
- const columns: ColumnDef<Cliente>[] = [
-  { accessorKey: "id", header: "ID" },
-  { accessorKey: "nome", header: "Nome" },
-  {
-     header: "CPF",
-  accessorKey: "cpf",
-  cell: ({ getValue }) => {
-    const cpf = getValue()?.toString().replace(/\D/g, "") ?? "";
-    return cpf.length === 11
-      ? cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+  const formatCPF = (cpf: string) => {
+    const cleaned = cpf.replace(/\D/g, "");
+    return cleaned.length === 11
+      ? cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
       : cpf;
-    },
-  },
-  {
-    header: "Endereço",
-    cell: ({ row }) => {
-      const { rua, numero, bairro } = row.original;
-      return `${rua}, ${numero} - ${bairro}`;
-    },
-  },
-  {
-    header: "CEP",
-    accessorKey: "cep",
-    cell: ({ getValue }) => {
-      const cep = String(getValue() ?? "").replace(/\D/g, "");
-      return cep.replace(/^(\d{5})(\d{3})$/, "$1-$2");
-    },
-  },
-  {
-     header: "Telefone",
-  accessorKey: "telefone",
-  cell: ({ getValue }) => {
-    const tel = getValue()?.toString().replace(/\D/g, "") ?? "";
-    return tel.length === 11
-      ? tel.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")
-      : tel;
-    },
-  },
-];
+  };
 
- useEffect(() => {
-  api.get("/api/v1/clientes")
-    .then(res => {
-      console.log("Dados recebidos:", res.data);
-      setData(res.data);
-    })
-    .catch(err => {
-      console.error("Erro ao buscar clientes:", err);
-      showToast("error", "Erro ao carregar clientes.");
-    });
-}, []);
+  const formatTelefone = (tel: string) => {
+    const cleaned = tel.replace(/\D/g, "");
+    return cleaned.length === 11
+      ? cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")
+      : tel;
+  };
+
+  const formatCEP = (cep: string) => {
+    const cleaned = cep.replace(/\D/g, "");
+    return cleaned.length === 8
+      ? cleaned.replace(/(\d{5})(\d{3})/, "$1-$2")
+      : cep;
+  };
+
+  const columns: ColumnDef<Cliente>[] = [
+    { accessorKey: "id", header: "ID" },
+    { accessorKey: "nome", header: "Nome" },
+    {
+      accessorKey: "cpf",
+      header: "CPF",
+      cell: ({ getValue }) => formatCPF(String(getValue() ?? "")),
+    },
+    {
+      accessorKey: "telefone",
+      header: "Telefone",
+      cell: ({ getValue }) => formatTelefone(String(getValue() ?? "")),
+    },
+    {
+      header: "Endereço",
+      cell: ({ row }) => {
+        const { rua, numero, bairro } = row.original;
+        return `${rua}, ${numero} - ${bairro}`;
+      },
+    },
+    {
+      accessorKey: "cep",
+      header: "CEP",
+      cell: ({ getValue }) => formatCEP(String(getValue() ?? "")),
+    },
+  ];
+
+  useEffect(() => {
+    api.get("/api/v1/clientes")
+      .then(res => {
+        console.log("Dados recebidos:", res.data);
+        setData(res.data);
+      })
+      .catch(err => {
+        console.error("Erro ao buscar clientes:", err);
+        showToast("error", "Erro ao carregar clientes.");
+      });
+  }, []);
 
   const handleChange = (name: string, value: string) => {
     setFormFields(prev =>
@@ -99,27 +108,65 @@ export default function ClientPage() {
     );
   };
 
+  const clean = (value: string, name: string): string => {
+    if (["cpf", "telefone", "cep"].includes(name)) {
+      return value.replace(/\D/g, "");
+    }
+    return value;
+  };
+
   const Create = async () => {
-    const novoCliente = formFields.reduce(
-      (acc, field) => ({ ...acc, [field.name]: field.value }),
-      {} as Cliente
-    );
-    setData(prev => [...prev, { ...novoCliente, id: prev.length + 1 }]);
-    showToast("success", "Cliente cadastrado com sucesso!");
-    setIsModalOpen(false);
+    try {
+      const clienteParaEnviar = formFields.reduce(
+        (acc, field) => ({
+          ...acc,
+          [field.name]: clean(field.value, field.name),
+        }),
+        {} as Omit<Cliente, "id">
+      );
+
+      const response = await api.post("/api/v1/clientes", clienteParaEnviar);
+
+      // O backend deve retornar o cliente criado com ID
+      const clienteCriado: Cliente = response.data;
+
+      // Adiciona o cliente no topo
+      setData(prev => [clienteCriado, ...prev]);
+
+      showToast("success", "Cliente cadastrado com sucesso!");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Erro ao cadastrar cliente:", error);
+      showToast("error", "Erro ao cadastrar cliente.");
+    }
   };
 
   const SaveEdit = async () => {
-    const atualizado = formFields.reduce(
-      (acc, field) => ({ ...acc, [field.name]: field.value }),
-      {} as Cliente
-    );
-    setData(prev =>
-      prev.map(c => c.id === atualizado.id ? atualizado : c)
-    );
+  console.log("🛠 Salvando cliente...");
+
+  const atualizado = formFields
+    .filter(field => field.name !== "id")
+    .reduce((acc, field) => ({
+      ...acc,
+      [field.name]: clean(field.value, field.name),
+    }), {});
+
+  console.log("📦 Dados a enviar:", atualizado);
+
+  try {
+    await api.put(`/api/v1/clientes/${selectedCliente?.id}`, atualizado);
+
+    const response = await api.get("/api/v1/clientes");
+    setData(response.data);
+
     showToast("success", "Cliente atualizado com sucesso!");
     setIsModalOpen(false);
-  };
+  } catch (error) {
+    console.error("❌ Erro ao salvar cliente:", error);
+    showToast("error", "Erro ao salvar alterações.");
+  }
+};
+
 
   const Delete = () => {
     if (selectedCliente) {
@@ -205,21 +252,19 @@ export default function ClientPage() {
 
     if (modalMode === "delete" && selectedCliente) {
       return (
-        <ModalView
+        <ModalDelete
           isOpen={isModalViewOpen}
-          title="Cliente"
-          contextModal={[
-            {
-              text: `Tem certeza que deseja deletar o cliente ${selectedCliente.nome}?`
-            }
-          ]}
-          buttonExtra={[
-            {
-              label: "Deletar",
-              onClick: Delete
-            }
-          ]}
-          onClose={() => setIsModalViewOpen(false)}
+          title="Excluir Cliente"
+          message={
+            <>
+              Tem certeza que deseja deletar o cliente {" "}
+              <span style={{ color: "#d32f2f", fontWeight: "bold", fontSize: "1.5em" }}>
+                {selectedCliente.nome} ?
+              </span>
+            </>
+          }
+          onConfirm={Delete}
+          onCancel={() => setIsModalViewOpen(false)}
         />
       );
     }
